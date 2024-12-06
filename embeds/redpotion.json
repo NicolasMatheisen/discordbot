@@ -1,0 +1,10 @@
+{
+    "title": "Gebräu des Überflusses",
+    "description": "Beim Trinken dieses geheimnisvollen Gebräus werden deine nächste täglichen Belohnungen verdoppelt. Anstelle der üblichen 100 Münzen und 3 Wasser, die du durch /daily erhältst, wird deine Ausbeute beträchtlich erhöht.",
+    "color": 409024,
+    "fields": [
+        { "name": "Zutaten:", "value": "Wasser <:water:1308117196655820861> + Drachenblut <:dragonblood:1307437398510145577>" },
+        { "name": "Aktueller Verkaufspreis:", "value": "450 <:botcoins:1306850998119301130>" }
+    ],
+    "thumbnail": { "url": "attachment://redpotion.PNG" }
+}
