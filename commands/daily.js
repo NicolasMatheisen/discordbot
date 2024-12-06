@@ -71,4 +71,3 @@ async function processDailyReward(userID, now, transaction) {
 	await createAccountActivity(inventory.InventoryID, now, '/daily', 100, transaction);
 	await createOrUpdateInventoryItem(inventory.InventoryID, 'Wasser', 1, transaction);
 }
-unga bunga lalalla
