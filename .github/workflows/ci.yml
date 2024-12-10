@@ -28,8 +28,8 @@ jobs:
         run: npm run lint
 
       - name: Upload ESLint result to Artifact
-        if: failure()
-        uses: actions/upload-artifact@v2
-        with:
-          name: eslint-results
-          path: eslint-report.txt
+  if: failure()
+  uses: actions/upload-artifact@v4
+  with:
+    name: eslint-results
+    path: eslint-report.txt
