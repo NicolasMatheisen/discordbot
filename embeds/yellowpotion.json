@@ -1,0 +1,10 @@
+{
+    "title": "Glückstonikum!",
+    "description": "Beim Trinken dieses magischen Tranks erhältst du einen großzügigen Rabatt im /shop.",
+    "color": 409024,
+    "fields": [
+        { "name": "Zutaten:", "value": "Wasser <:water:1308117196655820861> + Skarabäus <:kaefer:1308119695857025164>" },
+        { "name": "Aktueller Verkaufspreis:", "value": "700 <:botcoins:1306850998119301130>" }
+    ],
+    "thumbnail": { "url": "attachment://yellowpotion.PNG" }
+}
