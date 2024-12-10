@@ -1,0 +1,10 @@
+{
+    "title": "Ressourcen-Tinktur",
+    "description": "Diese kostbare Tinktur verleiht dir bei deiner nächsten Expedition die Chance auf seltenere Resssourcen.",
+    "color": 409024,
+    "fields": [
+        { "name": "Zutaten:", "value": "Wasser <:water:1308117196655820861> + Seerose <:seerose:1308121284575760436>" },
+        { "name": "Aktueller Verkaufspreis:", "value": "50 <:botcoins:1306850998119301130>" }
+    ],
+    "thumbnail": { "url": "attachment://bluepotion.PNG" }
+}

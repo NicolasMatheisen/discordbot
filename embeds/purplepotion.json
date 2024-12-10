@@ -1,0 +1,10 @@
+{
+    "title": "Doppelbrau-Elixier",
+    "description": "Beim Konsum dieses Elexiers wird die nächste Trankbrau-Session von außergewöhnlichem Erfolg gekrönt. Statt nur einem Trank, wirst du zwei identische Tränke brauen können, was deine Vorräte verdoppelt und dir einen entscheidenden Vorteil in deinem Abenteuer verschafft.",
+    "color": 409024,
+    "fields": [
+        { "name": "Zutaten:", "value": "Wasser <:water:1308117196655820861> + Magiepilze <:magischepilze:1308123109102063704>" },
+        { "name": "Aktueller Verkaufspreis:", "value": "375 <:botcoins:1306850998119301130>" }
+    ],
+    "thumbnail": { "url": "attachment://purplepotion.PNG" }
+}

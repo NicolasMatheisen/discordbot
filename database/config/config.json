@@ -1,0 +1,41 @@
+{
+  "development": {
+    "dialect": "sqlite",
+    "storage": "./database.sqlite3",
+    "dialectOptions": {
+      "timeout": 30000
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  },
+  "test": {
+    "dialect": "sqlite",
+    "storage": "./database_test.sqlite3",
+    "dialectOptions": {
+      "timeout": 30000
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  },
+  "production": {
+    "dialect": "sqlite",
+    "storage": "./database_production.sqlite3",
+    "dialectOptions": {
+      "timeout": 30000
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  }
+}

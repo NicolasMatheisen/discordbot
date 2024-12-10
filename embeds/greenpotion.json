@@ -1,0 +1,11 @@
+{
+    "title": "Beschleunigungstrank!",
+    "description": "Der Beschleunigungstrank ist ein magischer Trank, der beim Verzehr die Geschwindigkeit deiner nächsten Expedition erheblich erhöht. Dieser Trank ist perfekt für Abenteurer, die schnell vorankommen und keine Zeit verlieren möchten.",
+    "color": 409024,
+    "fields": [
+        { "name": "Zutaten:", "value": "Wasser <:water:1308117196655820861> + Trollpopel <:popel:1308121923229712536>" },
+        { "name": "Aktueller Verkaufspreis:", "value": "100 <:botcoins:1306850998119301130>" }
+    ],
+      "thumbnail": { "url": "attachment://greenpotion.PNG" }
+}
+
