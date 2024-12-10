@@ -4,10 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-
+  
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -26,10 +23,3 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-
-      - name: Upload ESLint result to Artifact
-  if: failure()
-  uses: actions/upload-artifact@v4
-  with:
-    name: eslint-results
-    path: eslint-report.txt
