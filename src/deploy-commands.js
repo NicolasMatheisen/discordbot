@@ -1,57 +1,56 @@
-const dotenv = require('dotenv');
-const { REST, Routes } = require('discord.js');
-const fs = require('node:fs');
-const path = require('node:path');
+// deploy-commands.mjs
+import 'dotenv/config'
+import { REST, Routes } from 'discord.js'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
-// Lade die .env-Datei
-dotenv.config();
+const { CLIENT_ID, DISCORD_TOKEN } = process.env
+const commandsRoot = path.join(process.cwd(), 'commands')
 
-const { CLIENT_ID, DISCORD_TOKEN } = process.env;
-
-const commands = [];
-const commandsPath = path.join(process.cwd(), 'commands');
-
-if (!fs.existsSync(commandsPath)) {
-    console.error(`[ERROR] Der Ordner ${commandsPath} existiert nicht.`);
-    process.exit(1);
+// Schritt 1: Einlesen aller Command-Unterordner
+let folders = []
+try {
+  folders = await fs.readdir(commandsRoot, { withFileTypes: true })
+    .then(dirents => dirents.filter(d => d.isDirectory()).map(d => d.name))
+} catch {
+  console.error('[ERROR] Konnte commands-Root nicht lesen:', commandsRoot)
+  process.exit(1)
 }
 
-// Alle Command-Dateien im "commands/"-Ordner finden
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const commands = []
 
-console.log(`Gefundene Befehlsdateien:`, commandFiles);
+// Schritt 2: Pro Ordner nur index.js importieren
+for (const folder of folders) {
+  const indexPath = path.join(commandsRoot, folder, 'index.js')
 
-for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    try {
-        const command = require(filePath);
-        console.log(`Importierte Datei: ${filePath}`, command);
+  try {
+    // Prüfen, ob index.js existiert
+    await fs.access(indexPath)
 
-        if ('data' in command && 'execute' in command) {
-            commands.push(command.data.toJSON());
-        } else {
-            console.warn(`[WARNING] Die Datei ${filePath} fehlt entweder "data" oder "execute".`);
-        }
-    } catch (error) {
-        console.error(`[ERROR] Fehler beim Laden von ${filePath}:`, error);
+    const { data } = await import(indexPath)
+    if (data?.toJSON) {
+      commands.push(data.toJSON())
+      console.log(`→ Loaded command from ${folder}/index.js`)
+    } else {
+      console.warn(`[WARN] ${folder}/index.js exportiert kein data.toJSON()`)
     }
+  } catch {
+    console.warn(`[WARN] Kein index.js in ${folder}, übersprungen`)
+  }
 }
 
-console.log(`Commands geladen:`, commands);
+console.log(`Bereite Upload von ${commands.length} eindeutigen Commands vor…`)
 
-const rest = new REST().setToken(DISCORD_TOKEN);
+// Schritt 3: Upload via REST
+const rest = new REST({ version: '10' }).setToken(DISCORD_TOKEN)
 
-(async () => {
-    try {
-        console.log(`Starte Aktualisierung von ${commands.length} globalen Slash-Commands.`);
-
-        const data = await rest.put(
-            Routes.applicationCommands(CLIENT_ID), // Für globale Commands
-            { body: commands },
-        );
-
-        console.log(`Erfolgreich ${data.length} globale Slash-Commands aktualisiert.`);
-    } catch (error) {
-        console.error(`[ERROR] Fehler beim Aktualisieren der Slash-Commands:`, error);
-    }
-})();
+try {
+  const result = await rest.put(
+    Routes.applicationCommands(CLIENT_ID),
+    { body: commands }
+  )
+  console.log(`Erfolgreich ${result.length} globale Slash-Commands registriert.`)
+} catch (err) {
+  console.error('[ERROR] Upload fehlgeschlagen:', err)
+  process.exit(1)
+}
