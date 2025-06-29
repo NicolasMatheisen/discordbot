@@ -19,7 +19,9 @@ const commandDirs  = fs
 
 for (const dir of commandDirs) {
   const filePath = path.join(commandsPath, dir, 'index.js');
-  const { default: command } = await import(pathToFileURL(filePath).href);
+  const module   = await import(pathToFileURL(filePath).href);
+  // Variante 2: nutze default falls vorhanden, sonst das Modul selbst
+  const command  = module.default ?? module;
 
   if (command?.data && command?.execute) {
     client.commands.set(command.data.name, command);
