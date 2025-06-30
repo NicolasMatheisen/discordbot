@@ -4,8 +4,7 @@ import path                    from 'path';
 import { fileURLToPath }       from 'url';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { drawBuildOverview }   from '../../utils/drawUtils.js';
-import Discord from 'discord.js';
-const { InteractionResponseFlags } = Discord;
+
 
 
 // JSON-Daten für Autocomplete
@@ -21,6 +20,11 @@ const __dirname  = path.dirname(__filename);
 export const data = new SlashCommandBuilder()
   .setName('createkillerbuild')
   .setDescription('Erstellt eine Dead-by-Daylight Killer-Build-Grafik')
+  .addStringOption(opt =>
+    opt.setName('perkbuild_name')
+       .setDescription('Wähle einen Namen für deinen Build')
+       .setRequired(true)
+  )
   .addStringOption(opt =>
     opt.setName('killer')
        .setDescription('Wähle deinen Killer')
@@ -107,17 +111,18 @@ export async function execute(interaction) {
 
     // 2.3) Antwort senden – mit flags statt deprecated ephemeral
     const buffer = canvas.toBuffer('image/png');
-    await interaction.reply({
-      files: [{ attachment: buffer, name: 'killer-build.png' }],
-      flags: InteractionResponseFlags.Ephemeral
-    });
+  await interaction.reply({
+    files: [{ attachment: buffer, name: 'killer-build.png' }],
+    ephemeral: true
+  });
+
 
   } catch (err) {
     console.error('createKillerBuild-Error:', err);
     if (!interaction.replied) {
       await interaction.reply({
         content: 'Oops, da ist was schiefgelaufen.',
-        flags: InteractionResponseFlags.Ephemeral
+        ephemeral: true
       });
     }
   }
