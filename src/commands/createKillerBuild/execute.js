@@ -4,6 +4,7 @@ import path                    from 'path';
 import { fileURLToPath }       from 'url';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { drawBuildOverview }   from '../../utils/drawUtils.js';
+import '../../utils/fontSetup.js';
 
 // JSON-Daten für Autocomplete
 import killers   from '../../data/killers.json'   assert { type: 'json' };
@@ -140,8 +141,7 @@ export async function execute(interaction) {
     // Antwort senden
     const buffer = canvas.toBuffer('image/png');
     await interaction.reply({
-      files: [{ attachment: buffer, name: 'killer-build.png' }],
-      ephemeral: true
+      files: [{ attachment: buffer, name: 'killer-build.png' }]
     });
 
   } catch (err) {
