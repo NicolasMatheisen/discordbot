@@ -1,158 +1,193 @@
 // src/utils/drawUtils.js
 
-// --- BASICS ---
-export function drawBackground(ctx, w, h, color = '#0F0F0F') {
-  ctx.fillStyle = color;
-  ctx.fillRect(0, 0, w, h);
+/**
+ * Zeichnet einen einfarbigen Hintergrund auf das Canvas.
+ */
+export function drawBackground(ctx, w, h, color = '#222222') {
+  ctx.save()
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, w, h)
+  ctx.restore()
 }
 
-export function drawText(
-  ctx,
-  text,
-  { x, y, size = 20, color = '#FFFFFF', align = 'center' }
-) {
-  ctx.font = `bold ${size}px sans-serif`;
-  ctx.fillStyle = color;
-  ctx.textAlign = align;
-  ctx.fillText(text, x, y);
+/**
+ * Zeichnet ein abgerundetes Rechteck auf das Canvas.
+ */
+function drawRoundedRect(ctx, x, y, w, h, r) {
+  const radius = Math.min(r, w / 2, h / 2)
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.lineTo(x + w - radius, y)
+  ctx.arcTo(x + w, y, x + w, y + radius, radius)
+  ctx.lineTo(x + w, y + h - radius)
+  ctx.arcTo(x + w, y + h, x + w - radius, y + h, radius)
+  ctx.lineTo(x + radius, y + h)
+  ctx.arcTo(x, y + h, x, y + h - radius, radius)
+  ctx.lineTo(x, y + radius)
+  ctx.arcTo(x, y, x + radius, y, radius)
+  ctx.closePath()
+  ctx.fill()
 }
 
-export function drawKillerIcon(
-  ctx,
-  image,
-  { canvasWidth, margin = 10, size = 120 }
-) {
-  const x = margin;
-  const y = margin;
-  ctx.drawImage(image, x, y, size, size);
-}
+/**
+ * Zeichnet die Killer-Build-Übersicht inklusive Addons und Offering-Beschriftung:
+ * - großen grauen Kasten oben
+ * - Build-Name
+ * - Killer-Icon
+ * - 4 Perk-Icons kreuzförmig
+ * - Offering-Icon unten rechts + Name
+ * - 2 Addon-Icons unten links + je Name
+ * - 2×3 kleine Perk-Boxen und ein langes Rechteck unten
+ */
+export function drawBuildOverview(ctx, {
+  width,
+  height,
+  killerImage,
+  buildName,
+  perkNames    = [],
+  perkImages   = [],
+  addonNames   = [],
+  addonImages  = [],
+  offeringImage = null,
+  offeringName  = ''
+}) {
+  // Hintergrund
+  drawBackground(ctx, width, height, '#222222')
 
-// --- PERK-LAYOUTS ---
-export function drawPerkIconsDiamond(
-  ctx,
-  images,
-  {
-    centerX,
-    centerY,
-    offset = 64,
-    shiftY = 0,
-    scale = 0.6
-  }
-) {
-  if (!images.length) return [];
-  const w = images[0].width * scale;
-  const h = images[0].height * scale;
+  // Konstanten
+  const margin     = 40
+  const gap        = 8
+  const padding    = 20
+  const nameOffset = 10
 
-  const positions = [
-    [centerX - w / 2,            centerY - offset - h / 2 + shiftY], // oben
-    [centerX - offset - w / 2,   centerY - h / 2 + shiftY],          // links
-    [centerX + offset - w / 2,   centerY - h / 2 + shiftY],          // rechts
-    [centerX - w / 2,            centerY + offset - h / 2 + shiftY] // unten
-  ];
+  // Großer grauer Kasten
+  const bigX = margin
+  const bigY = margin
+  const bigW = width - 2 * margin
+  const bigH = height * 0.7 - margin
+  ctx.fillStyle = '#555555'
+  drawRoundedRect(ctx, bigX, bigY, bigW, bigH, 18)
 
-  images.forEach((img, i) => {
-    const pos = positions[i];
-    if (!pos) return;
-    const [x, y] = pos;
-    ctx.drawImage(img, x, y, w, h);
-  });
-
-  return positions;
-}
-
-export function drawRowIcons(
-  ctx,
-  images,
-  {
-    canvasWidth,
-    canvasHeight,
-    iconSize = 70,
-    gap = 20,
-    bottomMargin = 20
-  }
-) {
-  const totalWidth = images.length * iconSize + (images.length - 1) * gap;
-  const startX = (canvasWidth - totalWidth) / 2;
-  const y = canvasHeight - iconSize - bottomMargin;
-
-  const positions = images.map((_, i) => [
-    startX + i * (iconSize + gap),
-    y
-  ]);
-
-  positions.forEach(([x, yy], i) =>
-    ctx.drawImage(images[i], x, yy, iconSize, iconSize)
-  );
-
-  return positions;
-}
-
-export function drawLabelsUnderIcons(
-  ctx,
-  texts,
-  iconPositions,
-  { iconSize = 70, margin = 10, size = 12, color = '#FFFFFF' } = {}
-) {
-  ctx.fillStyle = color;
-  ctx.textAlign = 'center';
-  ctx.font = `${size}px sans-serif`;
-
-  texts.forEach((text, i) => {
-    const pos = iconPositions[i];
-    if (!pos) return;
-    const [x, y] = pos;
-    ctx.fillText(text, x + iconSize / 2, y + iconSize + margin);
-  });
-}
-
-// --- HOOKUP: KOMPLETTE BUILD-ÜBERSICHT ---
-export function drawBuildOverview(
-  ctx,
-  {
-    width,
-    height,
-    killerImage,
+  // Build-Name
+  ctx.fillStyle    = '#ffffff'
+  ctx.font         = 'bold 30px "GillSansMedium"'
+  ctx.textBaseline = 'top'
+  ctx.textAlign    = 'left'
+  ctx.fillText(
     buildName,
-    perkImages = [],
-    perkNames = [],
-    bgColor = '#0F0F0F',
-    titleSize = 32,
-    titleColor = '#FFE600'
+    bigX + padding,
+    bigY + padding + nameOffset
+  )
+
+  // Killer-Icon
+  const killerSize = 128
+  ctx.drawImage(
+    killerImage,
+    bigX + bigW - killerSize - padding,
+    bigY + padding,
+    killerSize, killerSize
+  )
+
+  // 4 Perk-Icons kreuzförmig
+  if (perkImages.length >= 4) {
+    const icons = perkImages.slice(0, 4)
+    const maxDim = Math.max(...icons.map(img => Math.max(img.width, img.height)))
+    const offset = maxDim - 128
+    const cx = bigX + bigW / 2
+    const cy = bigY + bigH / 2
+    const [top, right, bottom, left] = icons
+
+    ctx.drawImage(top,
+      cx - top.width/2,
+      cy + offset - top.height/2
+    )
+    ctx.drawImage(right,
+      cx - offset - right.width/2,
+      cy - right.height/2
+    )
+    ctx.drawImage(bottom,
+      cx - bottom.width/2,
+      cy - offset - bottom.height/2
+    )
+    ctx.drawImage(left,
+      cx + offset - left.width/2,
+      cy - left.height/2
+    )
   }
-) {
-  // 1) Hintergrund
-  drawBackground(ctx, width, height, bgColor);
 
-  // 2) Titel
-  drawText(ctx, buildName, {
-    x: width / 2,
-    y: 50,
-    size: titleSize,
-    color: titleColor,
-    align: 'center'
-  });
+  // Offering-Icon + Name
+  if (offeringImage) {
+    const ox = bigX + bigW - offeringImage.width - padding
+    const oy = bigY + bigH - offeringImage.height - padding
+    ctx.drawImage(offeringImage, ox, oy)
 
-  // 3) Killer-Icon
-  drawKillerIcon(ctx, killerImage, {
-    canvasWidth: width,
-    margin: 20,
-    size: 140
-  });
+    if (offeringName) {
+      ctx.fillStyle = '#ffffff'
+      ctx.font      = '14px "GillSansMedium"'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'bottom'
+      ctx.fillText(
+        offeringName,
+        ox + offeringImage.width / 2,
+        oy - 4
+      )
+    }
+  }
 
-  // 4) Perks im Diamant-Layout
-  const perkPositions = drawPerkIconsDiamond(ctx, perkImages, {
-    centerX: width / 2 + 40,
-    centerY: height / 2 + 40,
-    offset: 100,
-    shiftY: 0,
-    scale: 0.7
-  });
+  // 2 Addon-Icons + Names
+  if (addonImages.length > 0) {
+    const ax = bigX + padding
+    const ay = bigY + bigH - addonImages[0].height - padding
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.font = '14px "GillSansMedium"'
+    ctx.fillStyle = '#ffffff'
 
-  // 5) Perknamen unter die Icons
-  drawLabelsUnderIcons(ctx, perkNames, perkPositions, {
-    iconSize: perkImages[0]?.width * 0.7 || 70,
-    margin: 8,
-    size: 14,
-    color: '#FFFFFF'
-  });
+    addonImages.forEach((img, i) => {
+      const x = ax + i * (img.width + gap)
+      ctx.drawImage(img, x, ay)
+
+      const name = addonNames[i] || ''
+      if (name) {
+        ctx.fillText(
+          name,
+          x + img.width/2,
+          ay + img.height + 4
+        )
+      }
+    })
+  }
+
+  // 2×3 kleine Perk-Boxen unter dem Kasten
+  const cols   = 2
+  const rows   = 3
+  const smallH = 40
+  const smallW = (width - 2 * margin - gap) / cols
+  const startY = bigY + bigH + gap
+
+  ctx.font         = '16px "GillSansMedium"'
+  ctx.textAlign    = 'center'
+  ctx.textBaseline = 'middle'
+
+  for (let i = 0; i < cols * rows; i++) {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const x   = margin + col * (smallW + gap)
+    const y   = startY + row * (smallH + gap)
+
+    ctx.fillStyle = '#444444'
+    drawRoundedRect(ctx, x, y, smallW, smallH, 8)
+
+    const name = perkNames[i] || ''
+    ctx.fillStyle = '#ffffff'
+    ctx.fillText(name, x + smallW / 2, y + smallH / 2)
+  }
+
+  // Langes Rechteck darunter
+  const longH = 40
+  const longY = startY + rows * (smallH + gap) + gap
+  const longX = margin
+  const longW = width - 2 * margin
+  ctx.fillStyle = '#444444'
+  drawRoundedRect(ctx, longX, longY, longW, longH, 8)
 }
